@@ -44,7 +44,7 @@ public class JSONArrayProcessor implements JSONProcessor {
     public JSONArrayProcessor() {
         state = State.INITIAL;
         entries = new ArrayList<>();
-        child = new JSONMainProcessor();
+        child = new JSONStreamProcessor();
     }
 
     @Override
@@ -84,7 +84,7 @@ public class JSONArrayProcessor implements JSONProcessor {
             case COMMA:
                 if (!JSONProcessor.isWhitespace(ch)) {
                     if (ch == ',') {
-                        child = new JSONMainProcessor();
+                        child = new JSONStreamProcessor();
                         state = State.ENTRY;
                     }
                     else if (ch == ']')

@@ -83,7 +83,7 @@ public class JSONObjectProcessor implements JSONProcessor {
             case COLON:
                 if (!JSONProcessor.isWhitespace(ch)) {
                     if (ch == ':') {
-                        child = new JSONMainProcessor();
+                        child = new JSONStreamProcessor();
                         state = State.VALUE;
                     }
                     else

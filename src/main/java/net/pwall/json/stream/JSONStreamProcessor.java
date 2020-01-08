@@ -1,5 +1,5 @@
 /*
- * @(#) JSONMainProcessor.kt
+ * @(#) JSONStreamProcessor.kt
  *
  * json-stream JSON Streaming library for Java
  * Copyright (c) 2020 Peter Wall
@@ -29,14 +29,14 @@ import net.pwall.json.JSONBoolean;
 import net.pwall.json.JSONException;
 import net.pwall.json.JSONValue;
 
-public class JSONMainProcessor implements JSONProcessor {
+public class JSONStreamProcessor implements JSONProcessor {
 
     private enum State { INITIAL, CHILD, CLOSED }
 
     private State state;
     private JSONProcessor child;
 
-    public JSONMainProcessor() {
+    public JSONStreamProcessor() {
         state = State.INITIAL;
         child = JSONErrorProcessor.INSTANCE;
     }
