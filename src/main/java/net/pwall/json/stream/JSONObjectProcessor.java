@@ -60,7 +60,7 @@ public class JSONObjectProcessor implements JSONProcessor {
     }
 
     @Override
-    public boolean accept(char ch) {
+    public boolean acceptChar(char ch) {
         boolean consumed = true;
         switch (state) {
             case INITIAL:
@@ -74,7 +74,7 @@ public class JSONObjectProcessor implements JSONProcessor {
                 }
                 break;
             case NAME:
-                child.accept(ch); // JSONStringProcessor always returns true
+                child.acceptChar(ch); // JSONStringProcessor always returns true
                 if (child.isClosed()) {
                     name = child.getResult().toString();
                     state = State.COLON;
@@ -91,7 +91,7 @@ public class JSONObjectProcessor implements JSONProcessor {
                 }
                 break;
             case VALUE:
-                consumed = child.accept(ch);
+                consumed = child.acceptChar(ch);
                 if (child.isClosed()) {
                     entries.put(name, child.getResult());
                     child = JSONErrorProcessor.INSTANCE;

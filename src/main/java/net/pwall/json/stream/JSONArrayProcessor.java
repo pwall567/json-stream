@@ -60,7 +60,7 @@ public class JSONArrayProcessor implements JSONProcessor {
     }
 
     @Override
-    public boolean accept(char ch) {
+    public boolean acceptChar(char ch) {
         boolean consumed = true;
         switch (state) {
             case INITIAL:
@@ -69,12 +69,12 @@ public class JSONArrayProcessor implements JSONProcessor {
                         state = State.CLOSED;
                     else {
                         state = State.ENTRY;
-                        child.accept(ch); // always true for first character
+                        child.acceptChar(ch); // always true for first character
                     }
                 }
                 break;
             case ENTRY:
-                consumed = child.accept(ch);
+                consumed = child.acceptChar(ch);
                 if (child.isClosed()) {
                     entries.add(child.getResult());
                     child = JSONErrorProcessor.INSTANCE;

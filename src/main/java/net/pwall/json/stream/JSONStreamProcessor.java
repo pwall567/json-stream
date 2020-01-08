@@ -25,11 +25,13 @@
 
 package net.pwall.json.stream;
 
+import java.util.function.IntConsumer;
+
 import net.pwall.json.JSONBoolean;
 import net.pwall.json.JSONException;
 import net.pwall.json.JSONValue;
 
-public class JSONStreamProcessor implements JSONProcessor {
+public class JSONStreamProcessor implements JSONProcessor, IntConsumer {
 
     private enum State { INITIAL, CHILD, CLOSED }
 
@@ -54,7 +56,25 @@ public class JSONStreamProcessor implements JSONProcessor {
     }
 
     @Override
-    public boolean accept(char ch) {
+    public void accept(int value) {
+        if (value == -1)
+            acceptEnd();
+        else {
+            while (true) {
+                if (acceptChar((char)value))
+                    break;
+            }
+        }
+    }
+
+    public void accept(String str) {
+        for (int i = 0, n = str.length(); i < n; i++)
+            accept(str.charAt(i));
+        acceptEnd();
+    }
+
+    @Override
+    public boolean acceptChar(char ch) {
         boolean consumed = true;
         switch (state) {
             case INITIAL:
@@ -78,7 +98,7 @@ public class JSONStreamProcessor implements JSONProcessor {
                 }
                 break;
             case CHILD:
-                consumed = child.accept(ch);
+                consumed = child.acceptChar(ch);
                 if (child.isClosed())
                     state = State.CLOSED;
                 break;

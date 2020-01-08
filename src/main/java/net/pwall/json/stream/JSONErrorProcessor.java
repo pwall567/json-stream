@@ -43,7 +43,7 @@ public class JSONErrorProcessor implements JSONProcessor {
     }
 
     @Override
-    public boolean accept(char ch) {
+    public boolean acceptChar(char ch) {
         throw new JSONException("Illegal state");
     }
 

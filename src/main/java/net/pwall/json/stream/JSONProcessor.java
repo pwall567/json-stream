@@ -33,20 +33,9 @@ public interface JSONProcessor {
 
     JSONValue getResult();
 
-    boolean accept(char ch);
+    boolean acceptChar(char ch);
 
     void acceptEnd();
-
-    default void accept(String str) {
-        for (int i = 0, n = str.length(); i < n; i++) {
-            char ch = str.charAt(i);
-            while (true) {
-                if (accept(ch))
-                    break;
-            }
-        }
-        acceptEnd();
-    }
 
     static boolean isWhitespace(char ch) {
         return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';

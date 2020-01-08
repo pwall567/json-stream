@@ -53,7 +53,7 @@ public class JSONKeywordProcessor implements JSONProcessor {
     }
 
     @Override
-    public boolean accept(char ch) {
+    public boolean acceptChar(char ch) {
         if (isClosed())
             throw new JSONException("Too many characters");
         if (ch != keyword.charAt(offset))

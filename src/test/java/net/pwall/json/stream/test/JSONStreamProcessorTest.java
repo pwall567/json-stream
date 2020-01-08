@@ -28,8 +28,6 @@ package net.pwall.json.stream.test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.junit.Test;
-
 import net.pwall.json.JSONArray;
 import net.pwall.json.JSONBoolean;
 import net.pwall.json.JSONDouble;
@@ -40,6 +38,7 @@ import net.pwall.json.JSONValue;
 import net.pwall.json.JSONZero;
 import net.pwall.json.stream.JSONStreamProcessor;
 
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 

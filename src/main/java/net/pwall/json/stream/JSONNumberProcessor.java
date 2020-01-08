@@ -77,7 +77,7 @@ public class JSONNumberProcessor implements JSONProcessor {
     }
 
     @Override
-    public boolean accept(char ch) {
+    public boolean acceptChar(char ch) {
         consumed = true;
         switch (state) {
             case MINUS_SEEN:

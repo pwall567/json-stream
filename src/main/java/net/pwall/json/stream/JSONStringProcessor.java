@@ -55,7 +55,7 @@ public class JSONStringProcessor implements JSONProcessor {
     }
 
     @Override
-    public boolean accept(char ch) {
+    public boolean acceptChar(char ch) {
         switch (state) {
             case NORMAL:
                 acceptNormal(ch);

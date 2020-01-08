@@ -6,16 +6,13 @@ This is a work in progress.  Class names and APIs may change.
 To use:
 
 ```java
-    JSONProcessor processor = new JSONMainProcessor();
+    JSONStreamProcessor processor = new JSONStreamProcessor();
 ```
 
 As each character is received (for example, from an HTTP connection):
 
 ```java
-    while (true) {
-        if (processor.accept(ch))
-            break;
-    }
+    processor.accept(ch)
 ```
 
 The `accept` method returns `true` only when the character has been consumed, so the same character should be re-sent
@@ -24,8 +21,10 @@ until `true` is received.
 When all characters have been processed:
 
 ```java
-    processor.acceptEnd();
+    processor.accept(-1);
 ```
+
+(If the characters are being read from a `Reader`, the EOF character may be passed to the processor.)
 
 The resulting `JSONValue` (for example, a `JSONObject`) is available by calling:
 
@@ -35,4 +34,4 @@ The resulting `JSONValue` (for example, a `JSONObject`) is available by calling:
 
 Peter Wall
 
-2020-01-05
+2020-01-08
