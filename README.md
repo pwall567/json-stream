@@ -32,6 +32,12 @@ The resulting `JSONValue` (for example, a `JSONObject`) is available by calling:
     JSONValue = processor.getResult();
 ```
 
+## Pipeline
+
+And now - `JSONArrayPipeline`.  This class takes a `Consumer<JSONValue>` as a constructor argument, and as characters
+are fed to it from a JSON array, the parsed array elements are passed to the consumer.
+See the test for an example.
+
 Peter Wall
 
 2020-01-08

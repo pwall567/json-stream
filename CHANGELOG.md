@@ -2,6 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.3] - 2020-01-08
+### Added
+- `JSONArrayPipeline`
+
 ## [0.2] - 2020-01-08
 ### Changed
 - Renamed `JSONMainProcessor` to `JSONStreamProcessor` and changed interface
