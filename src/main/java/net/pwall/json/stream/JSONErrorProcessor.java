@@ -33,7 +33,7 @@ public class JSONErrorProcessor implements JSONProcessor {
     public static final JSONErrorProcessor INSTANCE = new JSONErrorProcessor();
 
     @Override
-    public boolean isClosed() {
+    public boolean isComplete() {
         return true;
     }
 

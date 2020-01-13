@@ -28,13 +28,14 @@ package net.pwall.json.stream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.pwall.json.JSON;
 import net.pwall.json.JSONException;
 import net.pwall.json.JSONObject;
 import net.pwall.json.JSONValue;
 
 public class JSONObjectProcessor implements JSONProcessor {
 
-    private enum State { INITIAL, NAME, COLON, VALUE, COMMA, NEXT, CLOSED }
+    private enum State { INITIAL, NAME, COLON, VALUE, COMMA, NEXT, COMPLETE }
 
     private State state;
     private Map<String, JSONValue> entries;
@@ -48,13 +49,13 @@ public class JSONObjectProcessor implements JSONProcessor {
     }
 
     @Override
-    public boolean isClosed() {
-        return state == State.CLOSED;
+    public boolean isComplete() {
+        return state == State.COMPLETE;
     }
 
     @Override
     public JSONValue getResult() {
-        if (isClosed())
+        if (isComplete())
             return new JSONObject(entries);
         throw new JSONException("Object not complete");
     }
@@ -66,7 +67,7 @@ public class JSONObjectProcessor implements JSONProcessor {
             case INITIAL:
                 if (!JSONProcessor.isWhitespace(ch)) {
                     if (ch == '}')
-                        state = State.CLOSED;
+                        state = State.COMPLETE;
                     else if (ch == '"')
                         state = State.NAME;
                     else
@@ -75,7 +76,7 @@ public class JSONObjectProcessor implements JSONProcessor {
                 break;
             case NAME:
                 child.acceptChar(ch); // JSONStringProcessor always returns true
-                if (child.isClosed()) {
+                if (child.isComplete()) {
                     name = child.getResult().toString();
                     state = State.COLON;
                 }
@@ -92,7 +93,7 @@ public class JSONObjectProcessor implements JSONProcessor {
                 break;
             case VALUE:
                 consumed = child.acceptChar(ch);
-                if (child.isClosed()) {
+                if (child.isComplete()) {
                     entries.put(name, child.getResult());
                     child = JSONErrorProcessor.INSTANCE;
                     state = State.COMMA;
@@ -103,7 +104,7 @@ public class JSONObjectProcessor implements JSONProcessor {
                     if (ch == ',')
                         state = State.NEXT;
                     else if (ch == '}')
-                        state = State.CLOSED;
+                        state = State.COMPLETE;
                     else
                         throw new JSONException("Illegal syntax in object");
                 }
@@ -118,16 +119,16 @@ public class JSONObjectProcessor implements JSONProcessor {
                         throw new JSONException("Illegal syntax in object");
                 }
                 break;
-            case CLOSED:
+            case COMPLETE:
                 if (!JSONProcessor.isWhitespace(ch))
-                    throw new JSONException("Processor closed");
+                    throw new JSONException(JSON.EXCESS_CHARS);
         }
         return consumed;
     }
 
     @Override
     public void acceptEnd() {
-        if (!isClosed())
+        if (!isComplete())
             throw new JSONException("Unexpected end of data in object");
     }
 

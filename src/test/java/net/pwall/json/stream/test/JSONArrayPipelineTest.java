@@ -51,7 +51,7 @@ public class JSONArrayPipelineTest {
         for (int i = 0, n = json.length(); i < n; i++)
             pipeline.accept(json.charAt(i));
         pipeline.accept(-1); // end of data
-        assertTrue(pipeline.isClosed());
+        assertTrue(pipeline.isComplete());
         assertEquals(6, list.size());
         assertEquals(JSONZero.ZERO, list.get(0));
         assertEquals(JSONBoolean.TRUE, list.get(1));

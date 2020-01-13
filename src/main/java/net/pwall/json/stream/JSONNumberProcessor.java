@@ -35,7 +35,7 @@ import net.pwall.json.JSONZero;
 
 public class JSONNumberProcessor implements JSONProcessor {
 
-    private enum State { MINUS_SEEN, ZERO_SEEN, INTEGER, DOT_SEEN, FRACTION, E_SEEN, EXPONENT, CLOSED }
+    private enum State { MINUS_SEEN, ZERO_SEEN, INTEGER, DOT_SEEN, FRACTION, E_SEEN, EXPONENT, COMPLETE }
 
     private State state;
     private StringBuilder number;
@@ -58,13 +58,13 @@ public class JSONNumberProcessor implements JSONProcessor {
     }
 
     @Override
-    public boolean isClosed() {
-        return state == State.CLOSED;
+    public boolean isComplete() {
+        return state == State.COMPLETE;
     }
 
     @Override
     public JSONValue getResult() {
-        if (isClosed()) {
+        if (isComplete()) {
             if (number.length() == 1 && number.charAt(0) == '0')
                 return JSONZero.ZERO;
             if (floating)
@@ -130,9 +130,9 @@ public class JSONNumberProcessor implements JSONProcessor {
                 if (!(ch >= '0' && ch <= '9'))
                     endOfNumber();
                 break;
-            case CLOSED:
+            case COMPLETE:
                 if (!JSONProcessor.isWhitespace(ch))
-                    throw new JSONException("Illegal character at end of JSON");
+                    throw new JSONException(JSON.EXCESS_CHARS);
         }
         if (consumed)
             number.append(ch);
@@ -150,7 +150,7 @@ public class JSONNumberProcessor implements JSONProcessor {
     }
 
     private void endOfNumber() {
-        state = State.CLOSED;
+        state = State.COMPLETE;
         consumed = false;
     }
 
@@ -165,10 +165,9 @@ public class JSONNumberProcessor implements JSONProcessor {
             case INTEGER:
             case FRACTION:
             case EXPONENT:
-                state = State.CLOSED;
+                state = State.COMPLETE;
                 break;
-            case CLOSED:
-                throw new JSONException("Use of JSONNumberProcessor when closed");
+            case COMPLETE:
         }
     }
 

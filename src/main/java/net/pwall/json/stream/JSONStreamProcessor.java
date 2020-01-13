@@ -33,7 +33,7 @@ import net.pwall.json.JSONValue;
 
 public class JSONStreamProcessor implements JSONProcessor, IntConsumer {
 
-    private enum State { INITIAL, CHILD, CLOSED }
+    private enum State { INITIAL, CHILD, COMPLETE }
 
     private State state;
     private JSONProcessor child;
@@ -44,13 +44,13 @@ public class JSONStreamProcessor implements JSONProcessor, IntConsumer {
     }
 
     @Override
-    public boolean isClosed() {
-        return state == State.CLOSED;
+    public boolean isComplete() {
+        return state == State.COMPLETE;
     }
 
     @Override
     public JSONValue getResult() {
-        if (state == State.CLOSED)
+        if (state == State.COMPLETE)
             return child.getResult();
         throw new JSONException("JSON not complete");
     }
@@ -99,10 +99,10 @@ public class JSONStreamProcessor implements JSONProcessor, IntConsumer {
                 break;
             case CHILD:
                 consumed = child.acceptChar(ch);
-                if (child.isClosed())
-                    state = State.CLOSED;
+                if (child.isComplete())
+                    state = State.COMPLETE;
                 break;
-            case CLOSED:
+            case COMPLETE:
                 if (!JSONProcessor.isWhitespace(ch))
                     throw new JSONException("Illegal character at end of JSON");
         }
@@ -118,17 +118,17 @@ public class JSONStreamProcessor implements JSONProcessor, IntConsumer {
     public void acceptEnd() {
         switch (state) {
             case CHILD:
-                if (!child.isClosed()) {
+                if (!child.isComplete()) {
                     child.acceptEnd();
-                    if (child.isClosed())
-                        state = State.CLOSED;
+                    if (child.isComplete())
+                        state = State.COMPLETE;
                 }
                 break;
-            case CLOSED:
+            case COMPLETE:
                 break;
             default:
-                state = State.CLOSED;
-                throw new JSONException("JSON not closed");
+                state = State.COMPLETE;
+                throw new JSONException("JSON not complete");
         }
 
     }

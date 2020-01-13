@@ -25,6 +25,7 @@
 
 package net.pwall.json.stream;
 
+import net.pwall.json.JSON;
 import net.pwall.json.JSONException;
 import net.pwall.json.JSONValue;
 
@@ -41,21 +42,21 @@ public class JSONKeywordProcessor implements JSONProcessor {
     }
 
     @Override
-    public boolean isClosed() {
+    public boolean isComplete() {
         return offset == keyword.length();
     }
 
     @Override
     public JSONValue getResult() {
-        if (isClosed())
+        if (isComplete())
             return value;
         throw new JSONException("Keyword not complete");
     }
 
     @Override
     public boolean acceptChar(char ch) {
-        if (isClosed())
-            throw new JSONException("Too many characters");
+        if (isComplete())
+            throw new JSONException(JSON.EXCESS_CHARS);
         if (ch != keyword.charAt(offset))
             throw new JSONException("Illegal character");
         offset++;
@@ -64,7 +65,7 @@ public class JSONKeywordProcessor implements JSONProcessor {
 
     @Override
     public void acceptEnd() {
-        if (!isClosed())
+        if (!isComplete())
             throw new JSONException("Unexpected end of data");
     }
 

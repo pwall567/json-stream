@@ -28,12 +28,13 @@ package net.pwall.json.stream;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
+import net.pwall.json.JSON;
 import net.pwall.json.JSONException;
 import net.pwall.json.JSONValue;
 
 public class JSONArrayPipeline implements IntConsumer {
 
-    private enum State { INITIAL, FIRST, ENTRY, COMMA, CLOSED }
+    private enum State { INITIAL, FIRST, ENTRY, COMMA, COMPLETE }
 
     private State state;
     private JSONProcessor child;
@@ -45,8 +46,8 @@ public class JSONArrayPipeline implements IntConsumer {
         child = new JSONStreamProcessor();
     }
 
-    public boolean isClosed() {
-        return state == State.CLOSED;
+    public boolean isComplete() {
+        return state == State.COMPLETE;
     }
 
     @Override
@@ -75,7 +76,7 @@ public class JSONArrayPipeline implements IntConsumer {
             case FIRST:
                 if (!JSONProcessor.isWhitespace(ch)) {
                     if (ch == ']')
-                        state = State.CLOSED;
+                        state = State.COMPLETE;
                     else {
                         state = State.ENTRY;
                         child.acceptChar(ch); // always true for first character
@@ -84,7 +85,7 @@ public class JSONArrayPipeline implements IntConsumer {
                 break;
             case ENTRY:
                 consumed = child.acceptChar(ch);
-                if (child.isClosed()) {
+                if (child.isComplete()) {
                     valueConsumer.accept(child.getResult());
                     child = JSONErrorProcessor.INSTANCE;
                     state = State.COMMA;
@@ -97,20 +98,20 @@ public class JSONArrayPipeline implements IntConsumer {
                         state = State.ENTRY;
                     }
                     else if (ch == ']')
-                        state = State.CLOSED;
+                        state = State.COMPLETE;
                     else
                         throw new JSONException("Illegal syntax in array");
                 }
                 break;
-            case CLOSED:
+            case COMPLETE:
                 if (!JSONProcessor.isWhitespace(ch))
-                    throw new JSONException("Processor closed");
+                    throw new JSONException(JSON.EXCESS_CHARS);
         }
         return consumed;
     }
 
     public void acceptEnd() {
-        if (!isClosed())
+        if (!isComplete())
             throw new JSONException("Unexpected end of data in array");
     }
 

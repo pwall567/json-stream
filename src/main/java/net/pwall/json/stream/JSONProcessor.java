@@ -29,7 +29,7 @@ import net.pwall.json.JSONValue;
 
 public interface JSONProcessor {
 
-    boolean isClosed();
+    boolean isComplete();
 
     JSONValue getResult();
 

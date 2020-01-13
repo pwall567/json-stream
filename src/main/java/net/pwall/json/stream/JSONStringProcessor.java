@@ -25,13 +25,14 @@
 
 package net.pwall.json.stream;
 
+import net.pwall.json.JSON;
 import net.pwall.json.JSONException;
 import net.pwall.json.JSONString;
 import net.pwall.json.JSONValue;
 
 public class JSONStringProcessor implements JSONProcessor {
 
-    private enum State { NORMAL, BACKSLASH, UNICODE1, UNICODE2, UNICODE3, UNICODE4, CLOSED }
+    private enum State { NORMAL, BACKSLASH, UNICODE1, UNICODE2, UNICODE3, UNICODE4, COMPLETE }
 
     private State state;
     private StringBuilder sb;
@@ -43,13 +44,13 @@ public class JSONStringProcessor implements JSONProcessor {
     }
 
     @Override
-    public boolean isClosed() {
-        return state == State.CLOSED;
+    public boolean isComplete() {
+        return state == State.COMPLETE;
     }
 
     @Override
     public JSONValue getResult() {
-        if (isClosed())
+        if (isComplete())
             return new JSONString(sb);
         throw new JSONException("String not complete");
     }
@@ -76,21 +77,22 @@ public class JSONStringProcessor implements JSONProcessor {
                 acceptUnicode(ch, State.NORMAL);
                 sb.append((char)unicode);
                 break;
-            case CLOSED:
+            case COMPLETE:
                 if (!JSONProcessor.isWhitespace(ch))
-                    throw new JSONException("Illegal character at end of string");
+                    throw new JSONException(JSON.EXCESS_CHARS);
         }
         return true;
     }
 
     @Override
     public void acceptEnd() {
-
+        if (!isComplete())
+            throw new JSONException(JSON.ILLEGAL_STRING_TERM);
     }
 
     private void acceptNormal(char ch) {
         if (ch == '"')
-            state = State.CLOSED;
+            state = State.COMPLETE;
         else if (ch == '\\')
             state = State.BACKSLASH;
         else if (ch <= 0x1F)
