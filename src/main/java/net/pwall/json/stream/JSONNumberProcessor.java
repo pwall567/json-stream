@@ -155,7 +155,7 @@ public class JSONNumberProcessor implements JSONProcessor {
     }
 
     @Override
-    public void acceptEnd() {
+    public void close() {
         switch (state) {
             case MINUS_SEEN:
             case DOT_SEEN:

@@ -58,7 +58,7 @@ public class JSONStreamProcessor implements JSONProcessor, IntConsumer {
     @Override
     public void accept(int value) {
         if (value == -1)
-            acceptEnd();
+            close();
         else {
             while (true) {
                 if (acceptChar((char)value))
@@ -70,7 +70,7 @@ public class JSONStreamProcessor implements JSONProcessor, IntConsumer {
     public void accept(String str) {
         for (int i = 0, n = str.length(); i < n; i++)
             accept(str.charAt(i));
-        acceptEnd();
+        close();
     }
 
     @Override
@@ -115,11 +115,11 @@ public class JSONStreamProcessor implements JSONProcessor, IntConsumer {
     }
 
     @Override
-    public void acceptEnd() {
+    public void close() {
         switch (state) {
             case CHILD:
                 if (!child.isComplete()) {
-                    child.acceptEnd();
+                    child.close();
                     if (child.isComplete())
                         state = State.COMPLETE;
                 }

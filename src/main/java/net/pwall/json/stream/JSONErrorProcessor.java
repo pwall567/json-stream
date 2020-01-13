@@ -48,7 +48,7 @@ public class JSONErrorProcessor implements JSONProcessor {
     }
 
     @Override
-    public void acceptEnd() {
+    public void close() {
         throw new JSONException("Illegal state");
     }
 

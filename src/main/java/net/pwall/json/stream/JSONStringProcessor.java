@@ -85,7 +85,7 @@ public class JSONStringProcessor implements JSONProcessor {
     }
 
     @Override
-    public void acceptEnd() {
+    public void close() {
         if (!isComplete())
             throw new JSONException(JSON.ILLEGAL_STRING_TERM);
     }

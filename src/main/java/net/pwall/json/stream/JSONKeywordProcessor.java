@@ -64,7 +64,7 @@ public class JSONKeywordProcessor implements JSONProcessor {
     }
 
     @Override
-    public void acceptEnd() {
+    public void close() {
         if (!isComplete())
             throw new JSONException("Unexpected end of data");
     }
