@@ -45,7 +45,7 @@ import static org.junit.Assert.assertNull;
 public class JSONStreamProcessorTest {
 
     @Test
-    public void shouldParseNumberZero() {
+    public void shouldParseNumberZero() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "0";
         proc.accept(json);
@@ -53,7 +53,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseASimpleInteger() {
+    public void shouldParseASimpleInteger() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "123";
         proc.accept(json);
@@ -61,7 +61,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseANegativeInteger() {
+    public void shouldParseANegativeInteger() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "-54321";
         proc.accept(json);
@@ -69,7 +69,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseALongInteger() {
+    public void shouldParseALongInteger() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "1234567812345678";
         proc.accept(json);
@@ -77,7 +77,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseASimpleDouble() {
+    public void shouldParseASimpleDouble() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "123.45678";
         proc.accept(json);
@@ -85,7 +85,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseANegativeDouble() {
+    public void shouldParseANegativeDouble() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "-123.45678";
         proc.accept(json);
@@ -93,7 +93,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseASimpleString() {
+    public void shouldParseASimpleString() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "\"abcdef\"";
         proc.accept(json);
@@ -101,7 +101,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseAStringWithANewline() {
+    public void shouldParseAStringWithANewline() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "\"abc\\ndef\"";
         proc.accept(json);
@@ -109,7 +109,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseAStringWithAUnicodeSequence() {
+    public void shouldParseAStringWithAUnicodeSequence() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "\"abc\\u000Adef\"";
         proc.accept(json);
@@ -117,7 +117,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseEmptyArray() {
+    public void shouldParseEmptyArray() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "[]";
         proc.accept(json);
@@ -125,7 +125,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseArrayWithSingleZeroElement() {
+    public void shouldParseArrayWithSingleZeroElement() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "[0]";
         proc.accept(json);
@@ -133,7 +133,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseArrayWithTwoZeroElements() {
+    public void shouldParseArrayWithTwoZeroElements() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "[0,0]";
         proc.accept(json);
@@ -141,7 +141,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseArrayWithThreeZeroElementsIncludingExtraSpacing() {
+    public void shouldParseArrayWithThreeZeroElementsIncludingExtraSpacing() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "[0,  0   ,0]";
         proc.accept(json);
@@ -149,7 +149,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseArrayWithThreeStringElements() {
+    public void shouldParseArrayWithThreeStringElements() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "[\"abcdef\",\"ghijkl\",\"mnopqr\"]";
         proc.accept(json);
@@ -158,7 +158,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseNestedArray() {
+    public void shouldParseNestedArray() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "[[12,34],[56,78]]";
         proc.accept(json);
@@ -167,7 +167,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseBooleanTrue() {
+    public void shouldParseBooleanTrue() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "true";
         proc.accept(json);
@@ -175,7 +175,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseBooleanFalse() {
+    public void shouldParseBooleanFalse() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "false";
         proc.accept(json);
@@ -183,7 +183,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseKeywordNull() {
+    public void shouldParseKeywordNull() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "null";
         proc.accept(json);
@@ -191,7 +191,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseHeterogenousArray() {
+    public void shouldParseHeterogenousArray() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "[0,true,\"abc\",8.5,200,[]]";
         proc.accept(json);
@@ -200,7 +200,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseSimpleObject() {
+    public void shouldParseSimpleObject() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "{\"field\":0}";
         proc.accept(json);
@@ -210,7 +210,7 @@ public class JSONStreamProcessorTest {
     }
 
     @Test
-    public void shouldParseObjectWithTwoFields() {
+    public void shouldParseObjectWithTwoFields() throws Exception {
         JSONStreamProcessor proc = new JSONStreamProcessor();
         String json = "{\"f1\":0,\"f2\":123}";
         proc.accept(json);

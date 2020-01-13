@@ -4,7 +4,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## [Unreleased]
 ### Changed
-- Multiple changes to bring code into line with "Pipeline" library
+- Multiple changes to bring code into line with "pipelines" library
 
 ## [0.3] - 2020-01-08
 ### Added

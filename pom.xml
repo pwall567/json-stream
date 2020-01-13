@@ -50,6 +50,11 @@
       <version>2.2</version>
     </dependency>
     <dependency>
+      <groupId>net.pwall.util</groupId>
+      <artifactId>pipelines</artifactId>
+      <version>0.3</version>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.11</version>
