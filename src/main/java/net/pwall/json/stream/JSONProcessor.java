@@ -37,7 +37,7 @@ public interface JSONProcessor {
 
     void acceptEnd();
 
-    static boolean isWhitespace(char ch) {
+    static boolean isWhitespace(int ch) {
         return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
     }
 

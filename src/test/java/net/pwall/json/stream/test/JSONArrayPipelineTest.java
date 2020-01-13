@@ -44,13 +44,13 @@ import static org.junit.Assert.assertTrue;
 public class JSONArrayPipelineTest {
 
     @Test
-    public void shouldStreamArray() {
+    public void shouldStreamArrayToReceivingLambda() {
         List<JSONValue> list = new ArrayList<>();
         JSONArrayPipeline pipeline = new JSONArrayPipeline(list::add);
         String json = "[0,true,\"abc\",8.5,200,[]]";
         for (int i = 0, n = json.length(); i < n; i++)
             pipeline.accept(json.charAt(i));
-        pipeline.accept(-1);
+        pipeline.accept(-1); // end of data
         assertTrue(pipeline.isClosed());
         assertEquals(6, list.size());
         assertEquals(JSONZero.ZERO, list.get(0));
