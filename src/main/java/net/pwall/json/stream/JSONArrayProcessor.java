@@ -78,7 +78,6 @@ public class JSONArrayProcessor implements JSONProcessor {
                 consumed = child.acceptChar(ch);
                 if (child.isComplete()) {
                     entries.add(child.getResult());
-                    child = JSONErrorProcessor.INSTANCE;
                     state = State.COMMA;
                 }
                 break;

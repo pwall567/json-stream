@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.pwall.json</groupId>
   <artifactId>json-stream</artifactId>
-  <version>0.3</version>
+  <version>0.4-SNAPSHOT</version>
   <name>JSON Streaming library</name>
   <description>JSON Streaming library for Java</description>
   <packaging>jar</packaging>
@@ -52,7 +52,7 @@
     <dependency>
       <groupId>net.pwall.util</groupId>
       <artifactId>pipelines</artifactId>
-      <version>0.3</version>
+      <version>0.4</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

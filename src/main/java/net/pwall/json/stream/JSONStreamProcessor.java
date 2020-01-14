@@ -39,7 +39,6 @@ public class JSONStreamProcessor extends AbstractIntAcceptor<JSONValue> implemen
 
     public JSONStreamProcessor() {
         state = State.INITIAL;
-        child = JSONErrorProcessor.INSTANCE;
     }
 
     @Override
@@ -49,7 +48,7 @@ public class JSONStreamProcessor extends AbstractIntAcceptor<JSONValue> implemen
 
     @Override
     public JSONValue getResult() {
-        if (state == State.COMPLETE)
+        if (isComplete())
             return child.getResult();
         throw new JSONException("JSON not complete");
     }

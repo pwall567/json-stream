@@ -25,7 +25,6 @@
 
 package net.pwall.json.stream.test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.pwall.json.JSONArray;
@@ -44,14 +43,14 @@ import static org.junit.Assert.assertTrue;
 public class JSONArrayPipelineTest {
 
     @Test
-    public void shouldStreamArrayToReceivingLambda() {
-        List<JSONValue> list = new ArrayList<>();
-        JSONArrayPipeline pipeline = new JSONArrayPipeline(list::add);
+    public void shouldStreamArrayToReceivingLambda() throws Exception {
+        JSONArrayPipeline pipeline = new JSONArrayPipeline(new TestListAcceptor<JSONValue>());
         String json = "[0,true,\"abc\",8.5,200,[]]";
         for (int i = 0, n = json.length(); i < n; i++)
             pipeline.accept(json.charAt(i));
-        pipeline.accept(-1); // end of data
+        pipeline.close(); // end of data
         assertTrue(pipeline.isComplete());
+        List<JSONValue> list = pipeline.getResult();
         assertEquals(6, list.size());
         assertEquals(JSONZero.ZERO, list.get(0));
         assertEquals(JSONBoolean.TRUE, list.get(1));

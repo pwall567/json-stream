@@ -2,9 +2,9 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## [Unreleased]
+## [0.4] - 2020-01-14
 ### Changed
-- Multiple changes to bring code into line with "pipelines" library
+- Multiple changes to bring code into line with the `pipelines` library
 
 ## [0.3] - 2020-01-08
 ### Added

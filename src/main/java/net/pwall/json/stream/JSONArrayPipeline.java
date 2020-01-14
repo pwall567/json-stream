@@ -25,23 +25,26 @@
 
 package net.pwall.json.stream;
 
-import java.util.function.Consumer;
-import java.util.function.IntConsumer;
+import java.util.List;
 
 import net.pwall.json.JSON;
 import net.pwall.json.JSONException;
 import net.pwall.json.JSONValue;
+import net.pwall.util.pipeline.AbstractIntObjectPipeline;
+import net.pwall.util.pipeline.Acceptor;
 
-public class JSONArrayPipeline implements IntConsumer {
+/**
+ * A pipeline class that takes a stream of characters (Unicode code points) and outputs {@link JSONValue}s.
+ */
+public class JSONArrayPipeline extends AbstractIntObjectPipeline<JSONValue, List<JSONValue>> {
 
     private enum State { INITIAL, FIRST, ENTRY, COMMA, COMPLETE }
 
     private State state;
     private JSONProcessor child;
-    public Consumer<JSONValue> valueConsumer;
 
-    public JSONArrayPipeline(Consumer<JSONValue> valueConsumer) {
-        this.valueConsumer = valueConsumer;
+    public JSONArrayPipeline(Acceptor<JSONValue, List<JSONValue>> valueConsumer) {
+        super(valueConsumer);
         state = State.INITIAL;
         child = new JSONStreamProcessor();
     }
@@ -51,66 +54,56 @@ public class JSONArrayPipeline implements IntConsumer {
     }
 
     @Override
-    public void accept(int value) {
-        if (value == -1)
-            acceptEnd();
-        else {
-            while (true) {
-                if (acceptChar((char)value))
-                    break;
-            }
-        }
-    }
-
-    public boolean acceptChar(char ch) {
-        boolean consumed = true;
+    public void acceptInt(int value) throws Exception {
         switch (state) {
             case INITIAL:
-                if (!JSONProcessor.isWhitespace(ch)) {
-                    if (ch == '[')
+                if (!JSONProcessor.isWhitespace(value)) {
+                    if (value == '[')
                         state = State.FIRST;
                     else
                         throw new JSONException("Pipeline must contain array");
                 }
                 break;
             case FIRST:
-                if (!JSONProcessor.isWhitespace(ch)) {
-                    if (ch == ']')
+                if (!JSONProcessor.isWhitespace(value)) {
+                    if (value == ']')
                         state = State.COMPLETE;
                     else {
                         state = State.ENTRY;
-                        child.acceptChar(ch); // always true for first character
+                        child.acceptChar((char)value);
+                        // always true for first character
                     }
                 }
                 break;
             case ENTRY:
-                consumed = child.acceptChar(ch);
+                boolean consumed = child.acceptChar((char)value);
                 if (child.isComplete()) {
-                    valueConsumer.accept(child.getResult());
-                    child = JSONErrorProcessor.INSTANCE;
+                    emit(child.getResult());
                     state = State.COMMA;
                 }
-                break;
+                if (consumed)
+                    break;
+                // will drop through if character not consumed
             case COMMA:
-                if (!JSONProcessor.isWhitespace(ch)) {
-                    if (ch == ',') {
+                if (!JSONProcessor.isWhitespace(value)) {
+                    if (value == ',') {
                         child = new JSONStreamProcessor();
                         state = State.ENTRY;
                     }
-                    else if (ch == ']')
+                    else if (value == ']')
                         state = State.COMPLETE;
                     else
                         throw new JSONException("Illegal syntax in array");
                 }
                 break;
             case COMPLETE:
-                if (!JSONProcessor.isWhitespace(ch))
+                if (!JSONProcessor.isWhitespace(value))
                     throw new JSONException(JSON.EXCESS_CHARS);
         }
-        return consumed;
     }
 
-    public void acceptEnd() {
+    @Override
+    public void close() {
         if (!isComplete())
             throw new JSONException("Unexpected end of data in array");
     }
