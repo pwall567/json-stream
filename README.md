@@ -21,7 +21,7 @@ until `true` is received.
 When all characters have been processed:
 
 ```java
-    processor.accept(-1);
+    processor.close();
 ```
 
 (If the characters are being read from a `Reader`, the EOF character may be passed to the processor.)
@@ -34,10 +34,11 @@ The resulting `JSONValue` (for example, a `JSONObject`) is available by calling:
 
 ## Pipeline
 
-And now - `JSONArrayPipeline`.  This class takes a `Consumer<JSONValue>` as a constructor argument, and as characters
-are fed to it from a JSON array, the parsed array elements are passed to the consumer.
+And now - `JSONArrayPipeline`.  This class takes an `Acceptor` as a constructor argument
+(see [`pipelines`](https://github.com/pwall567/pipelines)), and as characters are fed to it from the string form of a
+JSON array, the parsed array elements are passed to the consumer.
 See the test for an example.
 
 Peter Wall
 
-2020-01-08
+2020-01-15

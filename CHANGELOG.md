@@ -2,6 +2,11 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.5] - 2020-01-15
+### Changed
+- Bumped version of `pipelines` library
+- Updated `README.md`
+
 ## [0.4] - 2020-01-14
 ### Changed
 - Multiple changes to bring code into line with the `pipelines` library
