@@ -26,7 +26,7 @@
 package net.pwall.json.stream;
 
 import net.pwall.json.JSON;
-import net.pwall.json.JSONDouble;
+import net.pwall.json.JSONDecimal;
 import net.pwall.json.JSONException;
 import net.pwall.json.JSONInteger;
 import net.pwall.json.JSONLong;
@@ -68,7 +68,7 @@ public class JSONNumberProcessor implements JSONProcessor {
             if (number.length() == 1 && number.charAt(0) == '0')
                 return JSONZero.ZERO;
             if (floating)
-                return new JSONDouble(Double.parseDouble(number.toString()));
+                return new JSONDecimal(number.toString());
             long longValue = Long.parseLong(number.toString());
             int intValue = (int)longValue;
             return (long)intValue == longValue ? new JSONInteger(intValue) : new JSONLong(longValue);

@@ -2,6 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.6] - 2020-01-27
+### Changed
+- Switched to version 3.0 of `jsonutil` library; use `JSONDecimal` in place of `JSONDouble`
+
 ## [0.5] - 2020-01-15
 ### Changed
 - Bumped version of `pipelines` library
