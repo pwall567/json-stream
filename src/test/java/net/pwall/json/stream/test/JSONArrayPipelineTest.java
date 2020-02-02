@@ -25,39 +25,59 @@
 
 package net.pwall.json.stream.test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.pwall.json.JSONArray;
 import net.pwall.json.JSONBoolean;
-import net.pwall.json.JSONDouble;
+import net.pwall.json.JSONDecimal;
 import net.pwall.json.JSONInteger;
 import net.pwall.json.JSONString;
 import net.pwall.json.JSONValue;
 import net.pwall.json.JSONZero;
 import net.pwall.json.stream.JSONArrayPipeline;
+import net.pwall.util.pipeline.AbstractAcceptor;
+import net.pwall.util.pipeline.ListAcceptor;
 
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JSONArrayPipelineTest {
 
     @Test
     public void shouldStreamArrayToReceivingLambda() throws Exception {
-        JSONArrayPipeline pipeline = new JSONArrayPipeline(new TestListAcceptor<JSONValue>());
+        JSONArrayPipeline<List<JSONValue>> pipeline = new JSONArrayPipeline<>(new ListAcceptor<>());
         String json = "[0,true,\"abc\",8.5,200,[]]";
-        for (int i = 0, n = json.length(); i < n; i++)
-            pipeline.accept(json.charAt(i));
-        pipeline.close(); // end of data
+        pipeline.accept(json);
         assertTrue(pipeline.isComplete());
         List<JSONValue> list = pipeline.getResult();
         assertEquals(6, list.size());
         assertEquals(JSONZero.ZERO, list.get(0));
         assertEquals(JSONBoolean.TRUE, list.get(1));
         assertEquals(new JSONString("abc"), list.get(2));
-        assertEquals(new JSONDouble(8.5), list.get(3));
+        assertEquals(new JSONDecimal("8.5"), list.get(3));
         assertEquals(new JSONInteger(200), list.get(4));
         assertEquals(new JSONArray(), list.get(5));
+    }
+
+    @Test
+    public void shouldStreamArrayToVoidAcceptor() throws Exception {
+        List<JSONValue> list = new ArrayList<>();
+        JSONArrayPipeline<Void> pipeline = new JSONArrayPipeline<>(new AbstractAcceptor<JSONValue, Void>() {
+            @Override
+            public void acceptObject(JSONValue value) {
+                list.add(value);
+            }
+        });
+        String json = "[ \"abc\", 5.16e10, 999, [ ] ]";
+        pipeline.accept(json);
+        assertTrue(pipeline.isComplete());
+        assertEquals(4, list.size());
+        assertEquals(new JSONString("abc"), list.get(0));
+        assertEquals(new JSONDecimal("5.16e10"), list.get(1));
+        assertEquals(new JSONInteger(999), list.get(2));
+        assertEquals(new JSONArray(), list.get(3));
     }
 
 }

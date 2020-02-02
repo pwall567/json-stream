@@ -1,35 +1,38 @@
 # json-stream
+
 JSON Streaming library for Java
 
-This is a work in progress.  Class names and APIs may change.
+This library allows JSON input to be parsed on the fly, avoiding the need to allocate memory for the largest possible
+input.
 
 To use:
 
 ```java
-    JSONStreamProcessor processor = new JSONStreamProcessor();
+    JSONStream stream = new JSONStream();
 ```
 
 As each character is received (for example, from an HTTP connection):
 
 ```java
-    processor.accept(ch)
+    stream.accept(ch)
 ```
-
-The `accept` method returns `true` only when the character has been consumed, so the same character should be re-sent
-until `true` is received.
 
 When all characters have been processed:
 
 ```java
-    processor.close();
+    stream.close();
 ```
 
-(If the characters are being read from a `Reader`, the EOF character may be passed to the processor.)
+(If the characters are being read from a `Reader`, the EOF character may be passed to the stream; this will have the
+same effect as `close()`.)
+
+Alternatively, a `String` may be sent in a single operation (although this defeats the purpose of a byte-by-byte
+parser!); in this case the `close()` will be sent to the stream at the end of the data.
 
 The resulting `JSONValue` (for example, a `JSONObject`) is available by calling:
 
 ```java
-    JSONValue = processor.getResult();
+    JSONValue = stream.getResult();
 ```
 
 ## Pipeline
@@ -39,6 +42,27 @@ And now - `JSONArrayPipeline`.  This class takes an `Acceptor` as a constructor 
 JSON array, the parsed array elements are passed to the consumer.
 See the test for an example.
 
+## Dependency Specification
+
+The latest version of the library is 0.7, and it may be obtained from the Maven Central repository.
+
+### Maven
+```xml
+    <dependency>
+      <groupId>net.pwall.json</groupId>
+      <artifactId>json-stream</artifactId>
+      <version>0.7</version>
+    </dependency>
+```
+### Gradle
+```groovy
+    implementation 'net.pwall.json:json-stream:0.7'
+```
+### Gradle (kts)
+```kotlin
+    implementation("net.pwall.json:json-stream:0.7")
+```
+
 Peter Wall
 
-2020-01-15
+2020-02-02

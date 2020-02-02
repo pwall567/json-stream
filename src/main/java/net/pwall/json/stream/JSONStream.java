@@ -1,5 +1,5 @@
 /*
- * @(#) JSONKeywordProcessor.kt
+ * @(#) JSONStream.kt
  *
  * json-stream JSON Streaming library for Java
  * Copyright (c) 2020 Peter Wall
@@ -25,48 +25,51 @@
 
 package net.pwall.json.stream;
 
-import net.pwall.json.JSON;
-import net.pwall.json.JSONException;
 import net.pwall.json.JSONValue;
+import net.pwall.util.pipeline.AbstractIntAcceptor;
 
-public class JSONKeywordProcessor implements JSONProcessor {
+/**
+ * A stream class that consumes a sequence of characters and produces a {@link JSONValue} result.  This class may be
+ * used to parse JSON on the fly, avoiding the need to allocate memory for the largest possible JSON input.
+ *
+ * <p>This class conforms to the conventions of the <a href="https://github.com/pwall567/pipelines">pipelines</a>
+ * library, allowing it to be used as the consuming class at the end of a pipeline.</p>
+ *
+ * @author  Peter Wall
+ */
+public class JSONStream extends AbstractIntAcceptor<JSONValue> {
 
-    private String keyword;
-    private JSONValue value;
-    private int offset;
+    private static final int BOM = 0xFEFF;
 
-    public JSONKeywordProcessor(String keyword, JSONValue value) {
-        this.keyword = keyword;
-        this.value = value;
-        offset = 1;
+    private final JSONValueBuilder delegate;
+    private boolean started;
+
+    public JSONStream() {
+        delegate = new JSONValueBuilder();
+        started = false;
     }
 
     @Override
-    public boolean isComplete() {
-        return offset == keyword.length();
+    public void acceptInt(int value) {
+        if (!started) {
+            started = true;
+            if (value == BOM)
+                return;
+        }
+        while (true) {
+            if (delegate.acceptChar(value))
+                break;
+        }
     }
 
     @Override
     public JSONValue getResult() {
-        if (isComplete())
-            return value;
-        throw new JSONException("Keyword not complete");
-    }
-
-    @Override
-    public boolean acceptChar(char ch) {
-        if (isComplete())
-            throw new JSONException(JSON.EXCESS_CHARS);
-        if (ch != keyword.charAt(offset))
-            throw new JSONException("Illegal character");
-        offset++;
-        return true;
+        return delegate.getResult();
     }
 
     @Override
     public void close() {
-        if (!isComplete())
-            throw new JSONException("Unexpected end of data");
+        delegate.close();
     }
 
 }

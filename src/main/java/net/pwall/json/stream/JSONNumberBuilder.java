@@ -1,5 +1,5 @@
 /*
- * @(#) JSONNumberProcessor.kt
+ * @(#) JSONNumberBuilder.kt
  *
  * json-stream JSON Streaming library for Java
  * Copyright (c) 2020 Peter Wall
@@ -25,7 +25,6 @@
 
 package net.pwall.json.stream;
 
-import net.pwall.json.JSON;
 import net.pwall.json.JSONDecimal;
 import net.pwall.json.JSONException;
 import net.pwall.json.JSONInteger;
@@ -33,16 +32,15 @@ import net.pwall.json.JSONLong;
 import net.pwall.json.JSONValue;
 import net.pwall.json.JSONZero;
 
-public class JSONNumberProcessor implements JSONProcessor {
+public class JSONNumberBuilder implements JSONBuilder {
 
-    private enum State { MINUS_SEEN, ZERO_SEEN, INTEGER, DOT_SEEN, FRACTION, E_SEEN, EXPONENT, COMPLETE }
+    private enum State { MINUS_SEEN, ZERO_SEEN, INTEGER, DOT_SEEN, FRACTION, E_SEEN, E_SIGN_SEEN, EXPONENT, COMPLETE }
 
+    private final StringBuilder number;
     private State state;
-    private StringBuilder number;
     private boolean floating;
-    private boolean consumed;
 
-    public JSONNumberProcessor(char initialChar) {
+    public JSONNumberBuilder(char initialChar) {
         if (initialChar == '-')
             state = State.MINUS_SEEN;
         else if (initialChar == '0')
@@ -50,11 +48,10 @@ public class JSONNumberProcessor implements JSONProcessor {
         else if (initialChar >= '1' && initialChar <= '9')
             state = State.INTEGER;
         else
-            throw new JSONException(JSON.ILLEGAL_NUMBER);
+            throw new JSONException("Illegal JSON number");
         number = new StringBuilder();
         number.append(initialChar);
         floating = false;
-        consumed = true;
     }
 
     @Override
@@ -64,21 +61,19 @@ public class JSONNumberProcessor implements JSONProcessor {
 
     @Override
     public JSONValue getResult() {
-        if (isComplete()) {
-            if (number.length() == 1 && number.charAt(0) == '0')
-                return JSONZero.ZERO;
-            if (floating)
-                return new JSONDecimal(number.toString());
-            long longValue = Long.parseLong(number.toString());
-            int intValue = (int)longValue;
-            return (long)intValue == longValue ? new JSONInteger(intValue) : new JSONLong(longValue);
-        }
-        throw new JSONException("Number not complete");
+        if (!isComplete())
+            throw new JSONException("Number not complete");
+        if (number.length() == 1 && number.charAt(0) == '0')
+            return JSONZero.ZERO;
+        if (floating)
+            return new JSONDecimal(number.toString());
+        long longValue = Long.parseLong(number.toString());
+        int intValue = (int)longValue;
+        return (long)intValue == longValue ? new JSONInteger(intValue) : new JSONLong(longValue);
     }
 
     @Override
-    public boolean acceptChar(char ch) {
-        consumed = true;
+    public boolean acceptChar(int ch) {
         switch (state) {
             case MINUS_SEEN:
                 if (ch == '0')
@@ -86,72 +81,68 @@ public class JSONNumberProcessor implements JSONProcessor {
                 else if (ch >= '1' && ch <= '9')
                     state = State.INTEGER;
                 else
-                    throw new JSONException(JSON.ILLEGAL_NUMBER);
+                    throw new JSONException("Illegal JSON number");
                 break;
             case ZERO_SEEN:
                 if (ch == '.')
-                    setDotSeen();
+                    state = State.DOT_SEEN;
                 else if (ch == 'e' || ch == 'E')
-                    setESeen();
+                    state = State.E_SEEN;
                 else
-                    endOfNumber();
+                    state = State.COMPLETE;
                 break;
             case INTEGER:
                 if (!(ch >= '0' && ch <= '9')) {
                     if (ch == '.')
-                        setDotSeen();
+                        state = State.DOT_SEEN;
                     else if (ch == 'e' || ch == 'E')
-                        setESeen();
+                        state = State.E_SEEN;
                     else
-                        endOfNumber();
+                        state = State.COMPLETE;
                 }
                 break;
             case DOT_SEEN:
+                floating = true;
                 if (ch >= '0' && ch <= '9')
                     state = State.FRACTION;
                 else
-                    throw new JSONException(JSON.ILLEGAL_NUMBER);
+                    throw new JSONException("Illegal JSON number");
                 break;
             case FRACTION:
                 if (!(ch >= '0' && ch <= '9')) {
                     if (ch == 'e' || ch == 'E')
-                        setESeen();
+                        state = State.E_SEEN;
                     else
-                        endOfNumber();
+                        state = State.COMPLETE;
                 }
                 break;
             case E_SEEN:
+                floating = true;
+                if (ch == '-' || ch == '+')
+                    state = State.E_SIGN_SEEN;
+                else if (ch >= '0' && ch <= '9')
+                    state = State.EXPONENT;
+                else
+                    throw new JSONException("Illegal JSON number");
+                break;
+            case E_SIGN_SEEN:
                 if (ch >= '0' && ch <= '9')
                     state = State.EXPONENT;
                 else
-                    throw new JSONException(JSON.ILLEGAL_NUMBER);
+                    throw new JSONException("Illegal JSON number");
                 break;
             case EXPONENT:
                 if (!(ch >= '0' && ch <= '9'))
-                    endOfNumber();
+                    state = State.COMPLETE;
                 break;
             case COMPLETE:
-                if (!JSONProcessor.isWhitespace(ch))
-                    throw new JSONException(JSON.EXCESS_CHARS);
+                JSONBuilder.checkWhitespace(ch);
+                return true;
         }
-        if (consumed)
-            number.append(ch);
-        return consumed;
-    }
-
-    private void setDotSeen() {
-        state = State.DOT_SEEN;
-        floating = true;
-    }
-
-    private void setESeen() {
-        state = State.E_SEEN;
-        floating = true;
-    }
-
-    private void endOfNumber() {
-        state = State.COMPLETE;
-        consumed = false;
+        if (isComplete())
+            return false;
+        number.append((char)ch);
+        return true;
     }
 
     @Override
@@ -160,13 +151,13 @@ public class JSONNumberProcessor implements JSONProcessor {
             case MINUS_SEEN:
             case DOT_SEEN:
             case E_SEEN:
-                throw new JSONException(JSON.ILLEGAL_NUMBER);
+            case E_SIGN_SEEN:
+                throw new JSONException("Illegal JSON number");
             case ZERO_SEEN:
             case INTEGER:
             case FRACTION:
             case EXPONENT:
                 state = State.COMPLETE;
-                break;
             case COMPLETE:
         }
     }

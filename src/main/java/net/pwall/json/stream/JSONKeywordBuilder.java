@@ -1,5 +1,5 @@
 /*
- * @(#) JSONProcessor.kt
+ * @(#) JSONKeywordBuilder.kt
  *
  * json-stream JSON Streaming library for Java
  * Copyright (c) 2020 Peter Wall
@@ -25,20 +25,41 @@
 
 package net.pwall.json.stream;
 
+import net.pwall.json.JSONException;
 import net.pwall.json.JSONValue;
 
-public interface JSONProcessor {
+public class JSONKeywordBuilder implements JSONBuilder {
 
-    boolean isComplete();
+    private final String keyword;
+    private final JSONValue value;
+    private int offset;
 
-    JSONValue getResult();
+    public JSONKeywordBuilder(String keyword, JSONValue value) {
+        this.keyword = keyword;
+        this.value = value;
+        offset = 1;
+    }
 
-    boolean acceptChar(char ch);
+    @Override
+    public boolean isComplete() {
+        return offset == keyword.length();
+    }
 
-    void close();
+    @Override
+    public JSONValue getResult() {
+        if (!isComplete())
+            throw new JSONException("Keyword not complete");
+        return value;
+    }
 
-    static boolean isWhitespace(int ch) {
-        return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
+    @Override
+    public boolean acceptChar(int ch) {
+        if (isComplete())
+            throw new JSONException("Unexpected characters at end of JSON keyword");
+        if (ch != keyword.charAt(offset))
+            throw new JSONException("Illegal character in JSON keyword");
+        offset++;
+        return true;
     }
 
 }

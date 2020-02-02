@@ -1,5 +1,5 @@
 /*
- * @(#) JSONStringProcessor.kt
+ * @(#) JSONStringBuilder.kt
  *
  * json-stream JSON Streaming library for Java
  * Copyright (c) 2020 Peter Wall
@@ -25,20 +25,19 @@
 
 package net.pwall.json.stream;
 
-import net.pwall.json.JSON;
 import net.pwall.json.JSONException;
 import net.pwall.json.JSONString;
 import net.pwall.json.JSONValue;
 
-public class JSONStringProcessor implements JSONProcessor {
+public class JSONStringBuilder implements JSONBuilder {
 
     private enum State { NORMAL, BACKSLASH, UNICODE1, UNICODE2, UNICODE3, UNICODE4, COMPLETE }
 
+    private final StringBuilder sb;
     private State state;
-    private StringBuilder sb;
     private int unicode;
 
-    public JSONStringProcessor() {
+    public JSONStringBuilder() {
         state = State.NORMAL;
         sb = new StringBuilder();
     }
@@ -50,13 +49,13 @@ public class JSONStringProcessor implements JSONProcessor {
 
     @Override
     public JSONValue getResult() {
-        if (isComplete())
-            return new JSONString(sb);
-        throw new JSONException("String not complete");
+        if (!isComplete())
+            throw new JSONException("Unterminated JSON string");
+        return new JSONString(sb);
     }
 
     @Override
-    public boolean acceptChar(char ch) {
+    public boolean acceptChar(int ch) {
         switch (state) {
             case NORMAL:
                 acceptNormal(ch);
@@ -78,32 +77,29 @@ public class JSONStringProcessor implements JSONProcessor {
                 sb.append((char)unicode);
                 break;
             case COMPLETE:
-                if (!JSONProcessor.isWhitespace(ch))
-                    throw new JSONException(JSON.EXCESS_CHARS);
+                JSONBuilder.checkWhitespace(ch);
         }
         return true;
     }
 
-    @Override
-    public void close() {
-        if (!isComplete())
-            throw new JSONException(JSON.ILLEGAL_STRING_TERM);
-    }
-
-    private void acceptNormal(char ch) {
+    private void acceptNormal(int ch) {
         if (ch == '"')
             state = State.COMPLETE;
         else if (ch == '\\')
             state = State.BACKSLASH;
         else if (ch <= 0x1F)
-            throw new JSONException("Illegal character in string");
-        else
-            sb.append(ch);
+            throw new JSONException("Illegal character in JSON string");
+        else if (Character.isBmpCodePoint(ch))
+            sb.append((char)ch);
+        else {
+            sb.append(Character.highSurrogate(ch));
+            sb.append(Character.lowSurrogate(ch));
+        }
     }
 
-    private void acceptBackslash(char ch) {
+    private void acceptBackslash(int ch) {
         if (ch == '"' || ch == '\\' || ch == '/')
-            store(ch);
+            store((char)ch);
         else if (ch == 'b')
             store('\b');
         else if (ch == 'f')
@@ -117,7 +113,7 @@ public class JSONStringProcessor implements JSONProcessor {
         else if (ch == 'u')
             state = State.UNICODE1;
         else
-            throw new JSONException("Illegal backslash sequence in string");
+            throw new JSONException("Illegal escape sequence in JSON string");
     }
 
     private void store(char ch) {
@@ -125,7 +121,7 @@ public class JSONStringProcessor implements JSONProcessor {
         state = State.NORMAL;
     }
 
-    private void acceptUnicode(char ch, State nextState) {
+    private void acceptUnicode(int ch, State nextState) {
         int digit;
         if (ch >= '0' && ch <= '9')
             digit = ch - '0';
@@ -134,7 +130,7 @@ public class JSONStringProcessor implements JSONProcessor {
         else if (ch >= 'a' && ch <= 'f')
             digit = ch - 'a' + 10;
         else
-            throw new JSONException("Illegal character in unicode sequence");
+            throw new JSONException("Illegal Unicode sequence in JSON string");
         unicode = (unicode << 4) | digit;
         state = nextState;
     }

@@ -2,6 +2,13 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.7] - 2020-02-02
+### Changed
+- Multiple classes renamed and code reorganised
+- `JSONNumberBuilder` - fixed bug in scientific notation
+- Javadoc added
+- Many tests added
+
 ## [0.6] - 2020-01-27
 ### Changed
 - Switched to version 3.0 of `jsonutil` library; use `JSONDecimal` in place of `JSONDouble`

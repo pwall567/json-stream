@@ -25,9 +25,6 @@
 
 package net.pwall.json.stream;
 
-import java.util.List;
-
-import net.pwall.json.JSON;
 import net.pwall.json.JSONException;
 import net.pwall.json.JSONValue;
 import net.pwall.util.pipeline.AbstractIntObjectPipeline;
@@ -35,18 +32,21 @@ import net.pwall.util.pipeline.Acceptor;
 
 /**
  * A pipeline class that takes a stream of characters (Unicode code points) and outputs {@link JSONValue}s.
+ *
+ * @author  Peter Wall
+ * @param   <R>     the pipeline result type (may be {@link Void} if all results are processed on the fly)
  */
-public class JSONArrayPipeline extends AbstractIntObjectPipeline<JSONValue, List<JSONValue>> {
+public class JSONArrayPipeline<R> extends AbstractIntObjectPipeline<JSONValue, R> {
 
     private enum State { INITIAL, FIRST, ENTRY, COMMA, COMPLETE }
 
     private State state;
-    private JSONProcessor child;
+    private JSONBuilder child;
 
-    public JSONArrayPipeline(Acceptor<JSONValue, List<JSONValue>> valueConsumer) {
+    public JSONArrayPipeline(Acceptor<JSONValue, R> valueConsumer) {
         super(valueConsumer);
         state = State.INITIAL;
-        child = new JSONStreamProcessor();
+        child = new JSONValueBuilder();
     }
 
     public boolean isComplete() {
@@ -57,7 +57,7 @@ public class JSONArrayPipeline extends AbstractIntObjectPipeline<JSONValue, List
     public void acceptInt(int value) throws Exception {
         switch (state) {
             case INITIAL:
-                if (!JSONProcessor.isWhitespace(value)) {
+                if (!JSONBuilder.isWhitespace(value)) {
                     if (value == '[')
                         state = State.FIRST;
                     else
@@ -65,12 +65,12 @@ public class JSONArrayPipeline extends AbstractIntObjectPipeline<JSONValue, List
                 }
                 break;
             case FIRST:
-                if (!JSONProcessor.isWhitespace(value)) {
+                if (!JSONBuilder.isWhitespace(value)) {
                     if (value == ']')
                         state = State.COMPLETE;
                     else {
                         state = State.ENTRY;
-                        child.acceptChar((char)value);
+                        child.acceptChar(value);
                         // always true for first character
                     }
                 }
@@ -85,9 +85,9 @@ public class JSONArrayPipeline extends AbstractIntObjectPipeline<JSONValue, List
                     break;
                 // will drop through if character not consumed
             case COMMA:
-                if (!JSONProcessor.isWhitespace(value)) {
+                if (!JSONBuilder.isWhitespace(value)) {
                     if (value == ',') {
-                        child = new JSONStreamProcessor();
+                        child = new JSONValueBuilder();
                         state = State.ENTRY;
                     }
                     else if (value == ']')
@@ -97,15 +97,14 @@ public class JSONArrayPipeline extends AbstractIntObjectPipeline<JSONValue, List
                 }
                 break;
             case COMPLETE:
-                if (!JSONProcessor.isWhitespace(value))
-                    throw new JSONException(JSON.EXCESS_CHARS);
+                JSONBuilder.checkWhitespace(value);
         }
     }
 
     @Override
     public void close() {
         if (!isComplete())
-            throw new JSONException("Unexpected end of data in array");
+            throw new JSONException("Unexpected end of data in JSON array");
     }
 
 }

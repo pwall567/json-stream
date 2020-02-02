@@ -1,5 +1,5 @@
 /*
- * @(#) JSONObjectProcessor.kt
+ * @(#) JSONObjectBuilder.kt
  *
  * json-stream JSON Streaming library for Java
  * Copyright (c) 2020 Peter Wall
@@ -28,24 +28,23 @@ package net.pwall.json.stream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import net.pwall.json.JSON;
 import net.pwall.json.JSONException;
 import net.pwall.json.JSONObject;
 import net.pwall.json.JSONValue;
 
-public class JSONObjectProcessor implements JSONProcessor {
+public class JSONObjectBuilder implements JSONBuilder {
 
     private enum State { INITIAL, NAME, COLON, VALUE, COMMA, NEXT, COMPLETE }
 
+    private final Map<String, JSONValue> entries;
     private State state;
-    private Map<String, JSONValue> entries;
-    private JSONProcessor child;
+    private JSONBuilder child;
     private String name;
 
-    public JSONObjectProcessor() {
+    public JSONObjectBuilder() {
         state = State.INITIAL;
         entries = new LinkedHashMap<>();
-        child = new JSONStringProcessor();
+        child = new JSONStringBuilder();
     }
 
     @Override
@@ -55,80 +54,77 @@ public class JSONObjectProcessor implements JSONProcessor {
 
     @Override
     public JSONValue getResult() {
-        if (isComplete())
-            return new JSONObject(entries);
-        throw new JSONException("Object not complete");
+        if (!isComplete())
+            throw new JSONException("JSON object not complete");
+        return new JSONObject(entries);
     }
 
     @Override
-    public boolean acceptChar(char ch) {
-        boolean consumed = true;
+    public boolean acceptChar(int ch) {
         switch (state) {
             case INITIAL:
-                if (!JSONProcessor.isWhitespace(ch)) {
+                if (!JSONBuilder.isWhitespace(ch)) {
                     if (ch == '}')
                         state = State.COMPLETE;
                     else if (ch == '"')
                         state = State.NAME;
                     else
-                        throw new JSONException("Illegal syntax in object");
+                        throw new JSONException("Illegal syntax in JSON object");
                 }
                 break;
             case NAME:
                 child.acceptChar(ch); // JSONStringProcessor always returns true
                 if (child.isComplete()) {
                     name = child.getResult().toString();
+                    if (entries.containsKey(name))
+                        throw new JSONException("Duplicate key in JSON object");
                     state = State.COLON;
                 }
                 break;
             case COLON:
-                if (!JSONProcessor.isWhitespace(ch)) {
+                if (!JSONBuilder.isWhitespace(ch)) {
                     if (ch == ':') {
-                        child = new JSONStreamProcessor();
+                        child = new JSONValueBuilder();
                         state = State.VALUE;
                     }
                     else
-                        throw new JSONException("Illegal syntax in object");
+                        throw new JSONException("Illegal syntax in JSON object");
                 }
                 break;
             case VALUE:
-                consumed = child.acceptChar(ch);
+                boolean consumed = child.acceptChar(ch);
                 if (child.isComplete()) {
                     entries.put(name, child.getResult());
                     state = State.COMMA;
                 }
-                break;
+                if (consumed)
+                    break;
+                state = State.COMMA;
+                // will drop through if character not consumed
             case COMMA:
-                if (!JSONProcessor.isWhitespace(ch)) {
+                if (!JSONBuilder.isWhitespace(ch)) {
                     if (ch == ',')
                         state = State.NEXT;
                     else if (ch == '}')
                         state = State.COMPLETE;
                     else
-                        throw new JSONException("Illegal syntax in object");
+                        throw new JSONException("Illegal syntax in JSON object");
                 }
                 break;
             case NEXT:
-                if (!JSONProcessor.isWhitespace(ch)) {
+                if (!JSONBuilder.isWhitespace(ch)) {
                     if (ch == '"') {
-                        child = new JSONStringProcessor();
+                        child = new JSONStringBuilder();
                         state = State.NAME;
                     }
                     else
-                        throw new JSONException("Illegal syntax in object");
+                        throw new JSONException("Illegal syntax in JSON object");
                 }
                 break;
             case COMPLETE:
-                if (!JSONProcessor.isWhitespace(ch))
-                    throw new JSONException(JSON.EXCESS_CHARS);
+                JSONBuilder.checkWhitespace(ch);
         }
-        return consumed;
-    }
-
-    @Override
-    public void close() {
-        if (!isComplete())
-            throw new JSONException("Unexpected end of data in object");
+        return true;
     }
 
 }

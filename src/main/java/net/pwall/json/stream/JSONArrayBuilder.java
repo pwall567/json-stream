@@ -1,5 +1,5 @@
 /*
- * @(#) JSONArrayProcessor.kt
+ * @(#) JSONArrayBuilder.kt
  *
  * json-stream JSON Streaming library for Java
  * Copyright (c) 2020 Peter Wall
@@ -28,24 +28,23 @@ package net.pwall.json.stream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.pwall.json.JSON;
 import net.pwall.json.JSONArray;
 import net.pwall.json.JSONException;
 import net.pwall.json.JSONValue;
 
-public class JSONArrayProcessor implements JSONProcessor {
+public class JSONArrayBuilder implements JSONBuilder {
 
     private enum State { INITIAL, ENTRY, COMMA, COMPLETE }
 
+    private final List<JSONValue> entries;
     private State state;
-    private List<JSONValue> entries;
-    private JSONProcessor child;
+    private JSONBuilder child;
 
 
-    public JSONArrayProcessor() {
+    public JSONArrayBuilder() {
         state = State.INITIAL;
         entries = new ArrayList<>();
-        child = new JSONStreamProcessor();
+        child = new JSONValueBuilder();
     }
 
     @Override
@@ -55,17 +54,16 @@ public class JSONArrayProcessor implements JSONProcessor {
 
     @Override
     public JSONValue getResult() {
-        if (isComplete())
-            return new JSONArray(entries);
-        throw new JSONException("Array not complete");
+        if (!isComplete())
+            throw new JSONException("Array not complete");
+        return new JSONArray(entries);
     }
 
     @Override
-    public boolean acceptChar(char ch) {
-        boolean consumed = true;
+    public boolean acceptChar(int ch) {
         switch (state) {
             case INITIAL:
-                if (!JSONProcessor.isWhitespace(ch)) {
+                if (!JSONBuilder.isWhitespace(ch)) {
                     if (ch == ']')
                         state = State.COMPLETE;
                     else {
@@ -75,35 +73,31 @@ public class JSONArrayProcessor implements JSONProcessor {
                 }
                 break;
             case ENTRY:
-                consumed = child.acceptChar(ch);
+                boolean consumed = child.acceptChar(ch);
                 if (child.isComplete()) {
                     entries.add(child.getResult());
                     state = State.COMMA;
                 }
-                break;
+                if (consumed)
+                    break;
+                state = State.COMMA;
+                // will drop through if character not consumed
             case COMMA:
-                if (!JSONProcessor.isWhitespace(ch)) {
+                if (!JSONBuilder.isWhitespace(ch)) {
                     if (ch == ',') {
-                        child = new JSONStreamProcessor();
+                        child = new JSONValueBuilder();
                         state = State.ENTRY;
                     }
                     else if (ch == ']')
                         state = State.COMPLETE;
                     else
-                        throw new JSONException("Illegal syntax in array");
+                        throw new JSONException("Illegal syntax in JSON array");
                 }
                 break;
             case COMPLETE:
-                if (!JSONProcessor.isWhitespace(ch))
-                    throw new JSONException(JSON.EXCESS_CHARS);
+                JSONBuilder.checkWhitespace(ch);
         }
-        return consumed;
-    }
-
-    @Override
-    public void close() {
-        if (!isComplete())
-            throw new JSONException("Unexpected end of data in array");
+        return true;
     }
 
 }
