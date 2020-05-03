@@ -302,6 +302,16 @@ public class JSONValueBuilderTest {
     }
 
     @Test
+    public void shouldParseEmptyString() throws Exception {
+        JSONStream proc = new JSONStream();
+        String json = "\"\"";
+        proc.accept(json);
+        JSONValue result = proc.getResult();
+        assertTrue(result instanceof JSONString);
+        assertEquals(new JSONString(""), result);
+    }
+
+    @Test
     public void shouldParseAStringWithAUnicodeSequence() throws Exception {
         JSONStream proc = new JSONStream();
         String json = "\"abc\\u000Adef\"";
@@ -460,7 +470,7 @@ public class JSONValueBuilderTest {
         proc.accept(json);
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONBoolean);
-        assertEquals(JSONBoolean.TRUE, result);
+        assertSame(JSONBoolean.TRUE, result);
     }
 
     @Test
@@ -470,7 +480,7 @@ public class JSONValueBuilderTest {
         proc.accept(json);
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONBoolean);
-        assertEquals(JSONBoolean.TRUE, result);
+        assertSame(JSONBoolean.TRUE, result);
     }
 
     @Test
@@ -611,8 +621,6 @@ public class JSONValueBuilderTest {
         map.put("aaa", new JSONArray(JSONZero.ZERO));
         assertEquals(new JSONArray(new JSONObject(map)), result);
     }
-
-    // TODO error conditions
 
     @Test
     public void shouldIgnoreByteOrderMark() throws Exception {

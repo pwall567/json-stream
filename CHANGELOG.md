@@ -2,6 +2,11 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.7.1] - 2020-05-03
+### Changed
+- `pom.xml`: Bumped version of `pipelines` library
+- `pom.xml`: Fixed problem with JUnit 5 and `maven-surefire-plugin`
+
 ## [0.7] - 2020-02-02
 ### Changed
 - Multiple classes renamed and code reorganised

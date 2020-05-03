@@ -76,7 +76,7 @@ public class JSONArrayPipeline<R> extends AbstractIntObjectPipeline<JSONValue, R
                 }
                 break;
             case ENTRY:
-                boolean consumed = child.acceptChar((char)value);
+                boolean consumed = child.acceptChar(value);
                 if (child.isComplete()) {
                     emit(child.getResult());
                     state = State.COMMA;
