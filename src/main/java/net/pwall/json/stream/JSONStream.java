@@ -26,7 +26,7 @@
 package net.pwall.json.stream;
 
 import net.pwall.json.JSONValue;
-import net.pwall.util.pipeline.AbstractIntAcceptor;
+import net.pwall.pipeline.AbstractIntAcceptor;
 
 /**
  * A stream class that consumes a sequence of characters and produces a {@link JSONValue} result.  This class may be

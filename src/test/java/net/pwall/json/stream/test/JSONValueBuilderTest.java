@@ -38,8 +38,8 @@ import net.pwall.json.JSONString;
 import net.pwall.json.JSONValue;
 import net.pwall.json.JSONZero;
 import net.pwall.json.stream.JSONStream;
-import net.pwall.util.pipeline.IntPipeline;
-import net.pwall.util.pipeline.UTF8_CodePoint;
+import net.pwall.pipeline.IntPipeline;
+import net.pwall.pipeline.codec.UTF8_CodePoint;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,272 +50,300 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class JSONValueBuilderTest {
 
     @Test
-    public void shouldParseNumberZero() throws Exception {
+    public void shouldParseNumberZero() {
         JSONStream proc = new JSONStream();
         String json = "0";
         proc.accept(json);
+        proc.close();
         assertSame(JSONZero.ZERO, proc.getResult());
     }
 
     @Test
-    public void shouldParseNumberZeroWithLeadingSpace() throws Exception {
+    public void shouldParseNumberZeroWithLeadingSpace() {
         JSONStream proc = new JSONStream();
         String json = " 0";
         proc.accept(json);
+        proc.close();
         assertSame(JSONZero.ZERO, proc.getResult());
     }
 
     @Test
-    public void shouldParseNumberZeroWithTrailingSpace() throws Exception {
+    public void shouldParseNumberZeroWithTrailingSpace() {
         JSONStream proc = new JSONStream();
         String json = "0 ";
         proc.accept(json);
+        proc.close();
         assertSame(JSONZero.ZERO, proc.getResult());
     }
 
     @Test
-    public void shouldParseNumberZeroWithMultipleSpaces() throws Exception {
+    public void shouldParseNumberZeroWithMultipleSpaces() {
         JSONStream proc = new JSONStream();
         String json = "    0  ";
         proc.accept(json);
+        proc.close();
         assertSame(JSONZero.ZERO, proc.getResult());
     }
 
     @Test
-    public void shouldParseASimpleInteger() throws Exception {
+    public void shouldParseASimpleInteger() {
         JSONStream proc = new JSONStream();
         String json = "123";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONInteger);
         assertEquals(new JSONInteger(123), result);
     }
 
     @Test
-    public void shouldParseASimpleIntegerWithLeadingSpace() throws Exception {
+    public void shouldParseASimpleIntegerWithLeadingSpace() {
         JSONStream proc = new JSONStream();
         String json = " 4";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONInteger);
         assertEquals(new JSONInteger(4), result);
     }
 
     @Test
-    public void shouldParseASimpleIntegerWithTrailingSpace() throws Exception {
+    public void shouldParseASimpleIntegerWithTrailingSpace() {
         JSONStream proc = new JSONStream();
         String json = "8888 ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONInteger);
         assertEquals(new JSONInteger(8888), result);
     }
 
     @Test
-    public void shouldParseASimpleIntegerWithMultipleSpaces() throws Exception {
+    public void shouldParseASimpleIntegerWithMultipleSpaces() {
         JSONStream proc = new JSONStream();
         String json = "  100001                 ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONInteger);
         assertEquals(new JSONInteger(100001), result);
     }
 
     @Test
-    public void shouldParseANegativeInteger() throws Exception {
+    public void shouldParseANegativeInteger() {
         JSONStream proc = new JSONStream();
         String json = "-54321";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONInteger);
         assertEquals(new JSONInteger(-54321), result);
     }
 
     @Test
-    public void shouldParseANegativeIntegerWithMultipleSpaces() throws Exception {
+    public void shouldParseANegativeIntegerWithMultipleSpaces() {
         JSONStream proc = new JSONStream();
         String json = "         -876  ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONInteger);
         assertEquals(new JSONInteger(-876), result);
     }
 
     @Test
-    public void shouldParseALongInteger() throws Exception {
+    public void shouldParseALongInteger() {
         JSONStream proc = new JSONStream();
         String json = "1234567812345678";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONLong);
         assertEquals(new JSONLong(1234567812345678L), result);
     }
 
     @Test
-    public void shouldParseALongIntegerWithMultipleSpaces() throws Exception {
+    public void shouldParseALongIntegerWithMultipleSpaces() {
         JSONStream proc = new JSONStream();
         String json = "     1232343454565676787  ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONLong);
         assertEquals(new JSONLong(1232343454565676787L), result);
     }
 
     @Test
-    public void shouldParseASimpleDecimal() throws Exception {
+    public void shouldParseASimpleDecimal() {
         JSONStream proc = new JSONStream();
         String json = "123.45678";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONDecimal);
         assertEquals(new JSONDecimal(json), result);
     }
 
     @Test
-    public void shouldParseASimpleDecimalWithLeadingSpace() throws Exception {
+    public void shouldParseASimpleDecimalWithLeadingSpace() {
         JSONStream proc = new JSONStream();
         String json = " 123.45678";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONDecimal);
         assertEquals(new JSONDecimal("123.45678"), result);
     }
 
     @Test
-    public void shouldParseASimpleDecimalWithTrailingSpace() throws Exception {
+    public void shouldParseASimpleDecimalWithTrailingSpace() {
         JSONStream proc = new JSONStream();
         String json = "123.5 ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONDecimal);
         assertEquals(new JSONDecimal("123.5"), result);
     }
 
     @Test
-    public void shouldParseASimpleDecimalWithMultipleSpaces() throws Exception {
+    public void shouldParseASimpleDecimalWithMultipleSpaces() {
         JSONStream proc = new JSONStream();
         String json = " 98876.25   ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONDecimal);
         assertEquals(new JSONDecimal("98876.25"), result);
     }
 
     @Test
-    public void shouldParseANegativeDecimal() throws Exception {
+    public void shouldParseANegativeDecimal() {
         JSONStream proc = new JSONStream();
         String json = "-123.45678";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONDecimal);
         assertEquals(new JSONDecimal(json), result);
     }
 
     @Test
-    public void shouldParseANegativeDecimalWithMultipleSpaces() throws Exception {
+    public void shouldParseANegativeDecimalWithMultipleSpaces() {
         JSONStream proc = new JSONStream();
         String json = "     -123.45678 ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONDecimal);
         assertEquals(new JSONDecimal("-123.45678"), result);
     }
 
     @Test
-    public void shouldParseScientificNotation() throws Exception {
+    public void shouldParseScientificNotation() {
         JSONStream proc = new JSONStream();
         String json = "123e58";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONDecimal);
         assertEquals(new JSONDecimal(json), result);
     }
 
     @Test
-    public void shouldParseScientificNotationWithMultipleSpaces() throws Exception {
+    public void shouldParseScientificNotationWithMultipleSpaces() {
         JSONStream proc = new JSONStream();
         String json = "   1.2345e+10    ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONDecimal);
         assertEquals(new JSONDecimal("1.2345e10"), result);
     }
 
     @Test
-    public void shouldParseNegativeScientificNotation() throws Exception {
+    public void shouldParseNegativeScientificNotation() {
         JSONStream proc = new JSONStream();
         String json = "-6789.08e-22";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONDecimal);
         assertEquals(new JSONDecimal(json), result);
     }
 
     @Test
-    public void shouldParseNegativeScientificNotationWithMultipleSpaces() throws Exception {
+    public void shouldParseNegativeScientificNotationWithMultipleSpaces() {
         JSONStream proc = new JSONStream();
         String json = "   -1.777e-5 ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONDecimal);
         assertEquals(new JSONDecimal("-1.777e-5"), result);
     }
 
     @Test
-    public void shouldParseASimpleString() throws Exception {
+    public void shouldParseASimpleString() {
         JSONStream proc = new JSONStream();
         String json = "\"abcdef\"";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONString);
         assertEquals(new JSONString("abcdef"), result);
     }
 
     @Test
-    public void shouldParseASimpleStringWithLeadingSpace() throws Exception {
+    public void shouldParseASimpleStringWithLeadingSpace() {
         JSONStream proc = new JSONStream();
         String json = " \"ghijk\"";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONString);
         assertEquals(new JSONString("ghijk"), result);
     }
 
     @Test
-    public void shouldParseASimpleStringWithTrailingSpace() throws Exception {
+    public void shouldParseASimpleStringWithTrailingSpace() {
         JSONStream proc = new JSONStream();
         String json = "\"lmnop\" ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONString);
         assertEquals(new JSONString("lmnop"), result);
     }
 
     @Test
-    public void shouldParseAStringWithANewline() throws Exception {
+    public void shouldParseAStringWithANewline() {
         JSONStream proc = new JSONStream();
         String json = "\"abc\\ndef\"";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONString);
         assertEquals(new JSONString("abc\ndef"), result);
     }
 
     @Test
-    public void shouldParseEmptyString() throws Exception {
+    public void shouldParseEmptyString() {
         JSONStream proc = new JSONStream();
         String json = "\"\"";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONString);
         assertEquals(new JSONString(""), result);
     }
 
     @Test
-    public void shouldParseAStringWithAUnicodeSequence() throws Exception {
+    public void shouldParseAStringWithAUnicodeSequence() {
         JSONStream proc = new JSONStream();
         String json = "\"abc\\u000Adef\"";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONString);
         assertEquals(new JSONString("abc\ndef"), result);
@@ -326,126 +354,139 @@ public class JSONValueBuilderTest {
         IntPipeline<JSONValue> proc = new UTF8_CodePoint<>(new JSONStream());
         byte[] json = new byte[] { '"', 'a', 'a', (byte)0xF0, (byte)0x9F, (byte)0x98, (byte)0x82, 'b', 'b', '"' };
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONString);
         assertEquals(new JSONString("aa\uD83D\uDE02bb"), result);
     }
 
     @Test
-    public void shouldParseEmptyArray() throws Exception {
+    public void shouldParseEmptyArray() {
         JSONStream proc = new JSONStream();
         String json = "[]";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(), result);
     }
 
     @Test
-    public void shouldParseEmptyArrayWithSpaces1() throws Exception {
+    public void shouldParseEmptyArrayWithSpaces1() {
         JSONStream proc = new JSONStream();
         String json = " []";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(), result);
     }
 
     @Test
-    public void shouldParseEmptyArrayWithSpaces2() throws Exception {
+    public void shouldParseEmptyArrayWithSpaces2() {
         JSONStream proc = new JSONStream();
         String json = "[ ]";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(), result);
     }
 
     @Test
-    public void shouldParseEmptyArrayWithSpaces3() throws Exception {
+    public void shouldParseEmptyArrayWithSpaces3() {
         JSONStream proc = new JSONStream();
         String json = " [ ]";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(), result);
     }
 
     @Test
-    public void shouldParseEmptyArrayWithSpaces4() throws Exception {
+    public void shouldParseEmptyArrayWithSpaces4() {
         JSONStream proc = new JSONStream();
         String json = "[] ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(), result);
     }
 
     @Test
-    public void shouldParseEmptyArrayWithSpaces5() throws Exception {
+    public void shouldParseEmptyArrayWithSpaces5() {
         JSONStream proc = new JSONStream();
         String json = " [] ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(), result);
     }
 
     @Test
-    public void shouldParseEmptyArrayWithSpaces6() throws Exception {
+    public void shouldParseEmptyArrayWithSpaces6() {
         JSONStream proc = new JSONStream();
         String json = "[ ] ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(), result);
     }
 
     @Test
-    public void shouldParseEmptyArrayWithSpaces7() throws Exception {
+    public void shouldParseEmptyArrayWithSpaces7() {
         JSONStream proc = new JSONStream();
         String json = " [ ] ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(), result);
     }
 
     @Test
-    public void shouldParseArrayWithSingleZeroElement() throws Exception {
+    public void shouldParseArrayWithSingleZeroElement() {
         JSONStream proc = new JSONStream();
         String json = "[0]";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(JSONZero.ZERO), result);
     }
 
     @Test
-    public void shouldParseArrayWithTwoZeroElements() throws Exception {
+    public void shouldParseArrayWithTwoZeroElements() {
         JSONStream proc = new JSONStream();
         String json = "[0,0]";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(JSONZero.ZERO, JSONZero.ZERO), result);
     }
 
     @Test
-    public void shouldParseArrayWithThreeZeroElementsIncludingExtraSpacing() throws Exception {
+    public void shouldParseArrayWithThreeZeroElementsIncludingExtraSpacing() {
         JSONStream proc = new JSONStream();
         String json = " [0,  0   ,0]";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(JSONZero.ZERO, JSONZero.ZERO, JSONZero.ZERO), result);
     }
 
     @Test
-    public void shouldParseArrayWithThreeStringElements() throws Exception {
+    public void shouldParseArrayWithThreeStringElements() {
         JSONStream proc = new JSONStream();
         String json = "[\"abcdef\",\"ghijkl\",\"mnopqr\"]";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(new JSONString("abcdef"), new JSONString("ghijkl"), new JSONString("mnopqr")),
@@ -453,10 +494,11 @@ public class JSONValueBuilderTest {
     }
 
     @Test
-    public void shouldParseNestedArray() throws Exception {
+    public void shouldParseNestedArray() {
         JSONStream proc = new JSONStream();
         String json = "[[12,34],[56,78]]";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(new JSONArray(new JSONInteger(12), new JSONInteger(34)),
@@ -464,58 +506,64 @@ public class JSONValueBuilderTest {
     }
 
     @Test
-    public void shouldParseBooleanTrue() throws Exception {
+    public void shouldParseBooleanTrue() {
         JSONStream proc = new JSONStream();
         String json = "true";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONBoolean);
         assertSame(JSONBoolean.TRUE, result);
     }
 
     @Test
-    public void shouldParseBooleanTrueWithLeadingSpace() throws Exception {
+    public void shouldParseBooleanTrueWithLeadingSpace() {
         JSONStream proc = new JSONStream();
         String json = " true";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONBoolean);
         assertSame(JSONBoolean.TRUE, result);
     }
 
     @Test
-    public void shouldParseBooleanTrueWithTrailingSpace() throws Exception {
+    public void shouldParseBooleanTrueWithTrailingSpace() {
         JSONStream proc = new JSONStream();
         String json = "true ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONBoolean);
         assertEquals(JSONBoolean.TRUE, result);
     }
 
     @Test
-    public void shouldParseBooleanFalse() throws Exception {
+    public void shouldParseBooleanFalse() {
         JSONStream proc = new JSONStream();
         String json = "false";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONBoolean);
         assertEquals(JSONBoolean.FALSE, result);
     }
 
     @Test
-    public void shouldParseKeywordNull() throws Exception {
+    public void shouldParseKeywordNull() {
         JSONStream proc = new JSONStream();
         String json = "null";
         proc.accept(json);
+        proc.close();
         assertNull(proc.getResult());
     }
 
     @Test
-    public void shouldParseHeterogenousArray() throws Exception {
+    public void shouldParseHeterogenousArray() {
         JSONStream proc = new JSONStream();
         String json = "[0,true,\"abc\",8.5,200,[]]";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(JSONZero.ZERO, JSONBoolean.TRUE, new JSONString("abc"), new JSONDecimal("8.5"),
@@ -523,10 +571,11 @@ public class JSONValueBuilderTest {
     }
 
     @Test
-    public void shouldParseHeterogenousArrayWithExtraSpacing() throws Exception {
+    public void shouldParseHeterogenousArrayWithExtraSpacing() {
         JSONStream proc = new JSONStream();
         String json = " [0 ,true,   \"abc\",  8.5 ,    200 ,[   ]]  ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         assertEquals(new JSONArray(JSONZero.ZERO, JSONBoolean.TRUE, new JSONString("abc"), new JSONDecimal("8.5"),
@@ -534,10 +583,11 @@ public class JSONValueBuilderTest {
     }
 
     @Test
-    public void shouldParseSimpleObject() throws Exception {
+    public void shouldParseSimpleObject() {
         JSONStream proc = new JSONStream();
         String json = "{\"field\":0}";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONObject);
         Map<String, JSONValue> map = new LinkedHashMap<>();
@@ -546,10 +596,11 @@ public class JSONValueBuilderTest {
     }
 
     @Test
-    public void shouldParseObjectWithTwoFields() throws Exception {
+    public void shouldParseObjectWithTwoFields() {
         JSONStream proc = new JSONStream();
         String json = "{\"f1\":0,\"f2\":123}";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONObject);
         Map<String, JSONValue> map = new LinkedHashMap<>();
@@ -559,10 +610,11 @@ public class JSONValueBuilderTest {
     }
 
     @Test
-    public void shouldParseObjectWithThreeFields() throws Exception {
+    public void shouldParseObjectWithThreeFields() {
         JSONStream proc = new JSONStream();
         String json = "{\"f1\":0,\"f2\":27.555,\"f3\":true}";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONObject);
         Map<String, JSONValue> map = new LinkedHashMap<>();
@@ -573,10 +625,11 @@ public class JSONValueBuilderTest {
     }
 
     @Test
-    public void shouldParseObjectWithThreeFieldsAndMultipleSpaces() throws Exception {
+    public void shouldParseObjectWithThreeFieldsAndMultipleSpaces() {
         JSONStream proc = new JSONStream();
         String json = " {   \"f1\" :0 ,\"f2\":   27.555,  \"f3\"    :  true }   ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONObject);
         Map<String, JSONValue> map = new LinkedHashMap<>();
@@ -587,10 +640,11 @@ public class JSONValueBuilderTest {
     }
 
     @Test
-    public void shouldParseArrayOfObject() throws Exception {
+    public void shouldParseArrayOfObject() {
         JSONStream proc = new JSONStream();
         String json = "[{\"aaa\":2000}]";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         Map<String, JSONValue> map = new LinkedHashMap<>();
@@ -599,10 +653,11 @@ public class JSONValueBuilderTest {
     }
 
     @Test
-    public void shouldParseArrayOfObjectContainingArray() throws Exception {
+    public void shouldParseArrayOfObjectContainingArray() {
         JSONStream proc = new JSONStream();
         String json = "[{\"aaa\":[0]}]";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         Map<String, JSONValue> map = new LinkedHashMap<>();
@@ -611,10 +666,11 @@ public class JSONValueBuilderTest {
     }
 
     @Test
-    public void shouldParseArrayOfObjectContainingArrayWithSpaces() throws Exception {
+    public void shouldParseArrayOfObjectContainingArrayWithSpaces() {
         JSONStream proc = new JSONStream();
         String json = " [ { \"aaa\" : [ 0 ] } ] ";
         proc.accept(json);
+        proc.close();
         JSONValue result = proc.getResult();
         assertTrue(result instanceof JSONArray);
         Map<String, JSONValue> map = new LinkedHashMap<>();
@@ -628,6 +684,7 @@ public class JSONValueBuilderTest {
         IntPipeline<JSONValue> proc = new UTF8_CodePoint<>(new JSONStream());
         byte[] json = new byte[] { (byte)0xEF, (byte)0xBB, (byte)0xBF, '0' };
         proc.accept(json);
+        proc.close();
         assertSame(JSONZero.ZERO, proc.getResult());
     }
 

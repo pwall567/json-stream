@@ -2,6 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.9] - 2023-07-11
+### Changed
+- `pom.xml`: Updated dependency versions
+
 ## [0.8] - 2021-04-20
 ### Changed
 - `pom.xml`: Bumped version of `jsonutil` library

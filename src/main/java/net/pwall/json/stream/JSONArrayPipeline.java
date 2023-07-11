@@ -27,8 +27,8 @@ package net.pwall.json.stream;
 
 import net.pwall.json.JSONException;
 import net.pwall.json.JSONValue;
-import net.pwall.util.pipeline.AbstractIntObjectPipeline;
-import net.pwall.util.pipeline.Acceptor;
+import net.pwall.pipeline.AbstractIntObjectPipeline;
+import net.pwall.pipeline.Acceptor;
 
 /**
  * A pipeline class that takes a stream of characters (Unicode code points) and outputs {@link JSONValue}s.
@@ -54,7 +54,7 @@ public class JSONArrayPipeline<R> extends AbstractIntObjectPipeline<JSONValue, R
     }
 
     @Override
-    public void acceptInt(int value) throws Exception {
+    public void acceptInt(int value) {
         switch (state) {
             case INITIAL:
                 if (!JSONBuilder.isWhitespace(value)) {

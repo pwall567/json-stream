@@ -36,8 +36,8 @@ import net.pwall.json.JSONString;
 import net.pwall.json.JSONValue;
 import net.pwall.json.JSONZero;
 import net.pwall.json.stream.JSONArrayPipeline;
-import net.pwall.util.pipeline.AbstractAcceptor;
-import net.pwall.util.pipeline.ListAcceptor;
+import net.pwall.pipeline.AbstractAcceptor;
+import net.pwall.pipeline.ListAcceptor;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class JSONArrayPipelineTest {
 
     @Test
-    public void shouldStreamArrayToReceivingLambda() throws Exception {
+    public void shouldStreamArrayToReceivingLambda() {
         JSONArrayPipeline<List<JSONValue>> pipeline = new JSONArrayPipeline<>(new ListAcceptor<>());
         String json = "[0,true,\"abc\",8.5,200,[]]";
         pipeline.accept(json);
@@ -62,7 +62,7 @@ public class JSONArrayPipelineTest {
     }
 
     @Test
-    public void shouldStreamArrayToVoidAcceptor() throws Exception {
+    public void shouldStreamArrayToVoidAcceptor() {
         List<JSONValue> list = new ArrayList<>();
         JSONArrayPipeline<Void> pipeline = new JSONArrayPipeline<>(new AbstractAcceptor<JSONValue, Void>() {
             @Override

@@ -44,25 +44,25 @@ See the test for an example.
 
 ## Dependency Specification
 
-The latest version of the library is 0.8, and it may be obtained from the Maven Central repository.
+The latest version of the library is 0.9, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.json</groupId>
       <artifactId>json-stream</artifactId>
-      <version>0.8</version>
+      <version>0.9</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'net.pwall.json:json-stream:0.8'
+    implementation 'net.pwall.json:json-stream:0.9'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.json:json-stream:0.8")
+    implementation("net.pwall.json:json-stream:0.9")
 ```
 
 Peter Wall
 
-2021-04-20
+2023-07-11
